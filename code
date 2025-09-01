@@ -1,0 +1,86 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MoodMateApp());
+
+class MoodMateApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'MoodMate',
+      theme: ThemeData(primarySwatch: Colors.teal),
+      home: MoodTrackerPage(),
+    );
+  }
+}
+
+class MoodTrackerPage extends StatefulWidget {
+  @override
+  _MoodTrackerPageState createState() => _MoodTrackerPageState();
+}
+
+class _MoodTrackerPageState extends State<MoodTrackerPage> {
+  String _selectedMood = '';
+  final _noteController = TextEditingController();
+  final List<Map<String, String>> _entries = [];
+
+  void _saveEntry() {
+    if (_selectedMood.isNotEmpty && _noteController.text.isNotEmpty) {
+      setState(() {
+        _entries.add({
+          'mood': _selectedMood,
+          'note': _noteController.text,
+        });
+        _selectedMood = '';
+        _noteController.clear();
+      });
+    }
+  }
+
+  Widget _buildMoodButton(String emoji) {
+    return GestureDetector(
+      onTap: () => setState(() => _selectedMood = emoji),
+      child: Text(
+        emoji,
+        style: TextStyle(fontSize: 32),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('MoodMate')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text('How are you feeling today?', style: TextStyle(fontSize: 18)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: ['😊', '😐', '😢', '😠', '😴'].map(_buildMoodButton).toList(),
+            ),
+            TextField(
+              controller: _noteController,
+              decoration: InputDecoration(labelText: 'Write a short note'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(onPressed: _saveEntry, child: Text('Save Entry')),
+            Divider(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _entries.length,
+                itemBuilder: (context, index) {
+                  final entry = _entries[index];
+                  return ListTile(
+                    leading: Text(entry['mood']!, style: TextStyle(fontSize: 24)),
+                    title: Text(entry['note']!),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
